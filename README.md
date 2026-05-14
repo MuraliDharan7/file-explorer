@@ -152,4 +152,4 @@ Unknown extensions use a default file icon.
 
 ## Author
 
-Murali Dharan
+Muralidharan
