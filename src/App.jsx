@@ -1,28 +1,44 @@
 import { useState } from "react";
+
 import initialData from "./data/initialData";
+
 import FileTree from "./components/FileTree";
+
 import "./styles.css";
 
 function App() {
-  const [tree, setTree] = useState(initialData);
+
+  const [tree, setTree] =
+    useState(initialData);
+
+  const [showCount, setShowCount] =
+    useState(false);
 
   // ADD NODE
-  const addNode = (tree, folderId, newNode) => {
+  const addNode = (
+    tree,
+    folderId,
+    newNode
+  ) => {
+
     return tree.map((node) => {
 
-      // MATCHED FOLDER
       if (
         node.id === folderId &&
         node.type === "folder"
       ) {
+
         return {
           ...node,
-          children: [...node.children, newNode],
+          children: [
+            ...node.children,
+            newNode,
+          ],
         };
       }
 
-      // RECURSIVELY SEARCH CHILDREN
       if (node.children) {
+
         return {
           ...node,
           children: addNode(
@@ -38,12 +54,19 @@ function App() {
   };
 
   // DELETE NODE
-  const deleteNode = (tree, nodeId) => {
+  const deleteNode = (
+    tree,
+    nodeId
+  ) => {
+
     return tree
-      .filter((node) => node.id !== nodeId)
+      .filter(
+        (node) => node.id !== nodeId
+      )
       .map((node) => {
 
         if (node.children) {
+
           return {
             ...node,
             children: deleteNode(
@@ -63,18 +86,19 @@ function App() {
     nodeId,
     newName
   ) => {
+
     return tree.map((node) => {
 
-      // MATCHED NODE
       if (node.id === nodeId) {
+
         return {
           ...node,
           name: newName,
         };
       }
 
-      // SEARCH CHILDREN
       if (node.children) {
+
         return {
           ...node,
           children: renameNode(
@@ -89,71 +113,141 @@ function App() {
     });
   };
 
+  // COUNT FILES & FOLDERS
+  const countItems = (nodes) => {
+
+    let files = 0;
+    let folders = 0;
+
+    const traverse = (items) => {
+
+      items.forEach((item) => {
+
+        if (item.type === "file") {
+          files++;
+        }
+
+        if (item.type === "folder") {
+          folders++;
+        }
+
+        if (item.children) {
+          traverse(item.children);
+        }
+      });
+    };
+
+    traverse(nodes);
+
+    return { files, folders };
+  };
+
+  const { files, folders } =
+    countItems(tree);
+
   return (
-  <div className="app">
+    <div className="app">
 
-    <div className="title">
-      FILE EXPLORER
+      {/* HEADER */}
+      <div className="explorer-header">
+
+        <div className="title">
+          FILE EXPLORER
+        </div>
+
+      </div>
+
+      {/* BUTTONS */}
+      <div className="top-buttons">
+
+        {/* NEW FILE */}
+        <button
+          onClick={() => {
+
+            const newFile = {
+              id: crypto.randomUUID(),
+              name: "",
+              type: "file",
+              isNew: true,
+            };
+
+            setTree((prev) => [
+              ...prev,
+              newFile,
+            ]);
+          }}
+        >
+          + New File
+        </button>
+
+        {/* NEW FOLDER */}
+        <button
+          onClick={() => {
+
+            const newFolder = {
+              id: crypto.randomUUID(),
+              name: "",
+              type: "folder",
+              children: [],
+              isNew: true,
+            };
+
+            setTree((prev) => [
+              ...prev,
+              newFolder,
+            ]);
+          }}
+        >
+          + New Folder
+        </button>
+
+        {/* SHOW COUNT */}
+        <button
+          className="count-btn"
+          onClick={() =>
+            setShowCount(!showCount)
+          }
+        >
+          Show Count
+        </button>
+
+      </div>
+
+      {/* COUNT OUTPUT */}
+      {showCount && (
+        <div className="count-output">
+
+          <p>
+            Total Files:
+            <span> {files}</span>
+          </p>
+
+          <p>
+            Total Folders:
+            <span> {folders}</span>
+          </p>
+
+        </div>
+      )}
+
+      {/* EMPTY STATE */}
+      {tree.length === 0 && (
+        <p className="empty-text">
+          No files or folders yet
+        </p>
+      )}
+
+      {/* FILE TREE */}
+      <FileTree
+        tree={tree}
+        setTree={setTree}
+        addNode={addNode}
+        deleteNode={deleteNode}
+        renameNode={renameNode}
+      />
+
     </div>
-
-    <div className="top-buttons">
-
-  {/* NEW FILE */}
-  <button
-  onClick={() => {
-
-    const newFile = {
-      id: crypto.randomUUID(),
-      name: "",
-      type: "file",
-      isNew: true,
-    };
-
-    setTree((prev) => [
-      ...prev,
-      newFile,
-    ]);
-  }}
->
-  + New File
-</button>
-
-  {/* NEW FOLDER */}
-  <button
-  onClick={() => {
-
-    const newFolder = {
-      id: crypto.randomUUID(),
-      name: "",
-      type: "folder",
-      children: [],
-      isNew: true,
-    };
-
-    setTree((prev) => [
-      ...prev,
-      newFolder,
-    ]);
-  }}
->
-  + New Folder
-</button>
-
-</div>
-{tree.length === 0 && (
-  <p className="empty-text">
-    No files or folders yet
-  </p>
-)}
-    <FileTree
-      tree={tree}
-      setTree={setTree}
-      addNode={addNode}
-      deleteNode={deleteNode}
-      renameNode={renameNode}
-    />
-  </div>
-);
+  );
 }
 
 export default App;
