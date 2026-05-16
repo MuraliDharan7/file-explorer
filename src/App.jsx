@@ -113,24 +113,18 @@ function App() {
     });
   };
 
-  // COUNT FILES & FOLDERS
   const countItems = (nodes) => {
-
     let files = 0;
     let folders = 0;
-
     const traverse = (items) => {
-
       items.forEach((item) => {
 
         if (item.type === "file") {
           files++;
         }
-
         if (item.type === "folder") {
           folders++;
         }
-
         if (item.children) {
           traverse(item.children);
         }
@@ -200,17 +194,13 @@ function App() {
         >
           + New Folder
         </button>
-
-        {/* SHOW COUNT */}
         <button
           className="count-btn"
           onClick={() =>
             setShowCount(!showCount)
-          }
-        >
+          }>
           Show Count
         </button>
-
       </div>
 
       {/* COUNT OUTPUT */}
